@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camping System</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-container">
+    <div class="login-box">
+        <h1>🏕 Campapp</h1>
+        <p>Your All-in-One Camp Companion</p>
+        
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="login-form">
+            <h2>Login</h2>
+            <input type="text" id="loginUsername" placeholder="Username" autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password">
+            
+            <div class="role-selector">
+                <label>
+                    <input type="radio" name="loginRole" value="user" checked> User
+                </label>
+                <label>
+                    <input type="radio" name="loginRole" value="admin"> Admin
+                </label>
+            </div>
+            
+            <button onclick="login()">Login</button>
+            <p class="switch-link" onclick="showRegisterForm()">Don't have an account? Register here</p>
+        </div>
+        
+        <!-- REGISTER FORM -->
+        <div id="registerForm" class="login-form" style="display: none;">
+            <h2>Register</h2>
+            <input type="text" id="registerUsername" placeholder="Username" autocomplete="off">
+            <input type="password" id="registerPassword" placeholder="Password">
+            <input type="password" id="registerConfirmPassword" placeholder="Confirm Password">
+            
+            <div class="role-selector">
+                <label>
+                    <input type="radio" name="registerRole" value="user" checked> User
+                </label>
+                <label>
+                    <input type="radio" name="registerRole" value="admin"> Admin
+                </label>
+            </div>
+            
+            <button onclick="registerUser()">Register</button>
+            <p class="switch-link" onclick="showLoginForm()">Already have an account? Login here</p>
+        </div>
+        
+    </div>
+</div>
+
+<button id="menuToggle" type="button" onclick="toggleMenu()" style="display: none;">☰ Menu</button>
+
+<div id="mainApp" style="width: 100%; display: flex; display: none;">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>🏕 CampSys</h2>
+        <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+    </div>
+    <div id="userDisplay" style="font-size: 12px; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px;"></div>
+
+    <!-- USER MENU -->
+    <div id="userMenu">
+        <div class="nav-item active" onclick="showSection('home', this)">
+            <svg width="20" height="20" viewBox="0 0 20 20" style="margin-right: 8px; vertical-align: middle;">
+                <polygon points="5,15 10,5 15,15" fill="none" stroke="white" stroke-width="2"/>
+                <line x1="10" y1="5" x2="10" y2="18" stroke="white" stroke-width="2"/>
+            </svg>
+            Home
+        </div>
+        <div class="nav-item" onclick="showSection('rules', this)">📖 Rules</div>
+        <div class="nav-item" onclick="showSection('journals', this)">📓 Journals</div>
+        <div class="nav-item" onclick="showSection('qa', this)">❓ Quiz</div>
+        <div class="nav-item" onclick="showSection('achievements', this)">🏆 Achievements</div>
+        <div class="nav-item" onclick="showSection('profile', this)">👤 Profile</div>
+        <div class="nav-item" onclick="showSection('gear', this)">🎒 Gear</div>
+    </div>
+
+    <!-- ADMIN MENU -->
+    <div id="adminMenu" style="display: none;">
+        <div class="nav-item active" onclick="showSection('adminDashboard', this)">
+            <svg width="20" height="20" viewBox="0 0 20 20" style="margin-right: 8px; vertical-align: middle;">
+                <rect x="2" y="2" width="6" height="6" fill="none" stroke="white" stroke-width="1.5"/>
+                <rect x="12" y="2" width="6" height="6" fill="none" stroke="white" stroke-width="1.5"/>
+                <rect x="2" y="12" width="6" height="6" fill="none" stroke="white" stroke-width="1.5"/>
+                <rect x="12" y="12" width="6" height="6" fill="none" stroke="white" stroke-width="1.5"/>
+            </svg>
+            Dashboard
+        </div>
+        <div class="nav-item" onclick="showSection('adminQA', this)">❓ Manage Q&A</div>
+        <div class="nav-item" onclick="showSection('adminUsers', this)">👥 All Users</div>
+        <div class="nav-item" onclick="showSection('adminSubmissions', this)">📊 User Submissions</div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- HOME -->
+    <div id="home" class="section active">
+        <div class="header">Welcome to the Campapp 🌲🔥</div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.95); color: #333; position: relative; z-index: 10;">
+            <p>Your all in one camp Companion!</p>
+        </div>
+
+        <!-- Mountains Background -->
+        <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; z-index: 1;" viewBox="0 0 1200 200">
+            <polygon points="0,200 300,50 600,150 900,30 1200,100 1200,200" fill="#8B4513"/>
+            <polygon points="0,200 200,80 400,120 600,40 800,90 1000,60 1200,120 1200,200" fill="#A0522D"/>
+        </svg>
+
+        <!-- Trees -->
+        <svg style="position: absolute; bottom: 150px; left: 50px; width: 100px; height: 150px; z-index: 2;" viewBox="0 0 100 150">
+            <rect x="45" y="120" width="10" height="30" fill="#8B4513"/>
+            <polygon points="50,0 30,80 70,80" fill="#228B22"/>
+            <polygon points="50,20 25,100 75,100" fill="#32CD32"/>
+        </svg>
+
+        <svg style="position: absolute; bottom: 140px; right: 100px; width: 80px; height: 120px; z-index: 2;" viewBox="0 0 80 120">
+            <rect x="35" y="90" width="10" height="30" fill="#8B4513"/>
+            <polygon points="40,0 20,60 60,60" fill="#228B22"/>
+            <polygon points="40,15 15,75 65,75" fill="#32CD32"/>
+        </svg>
+
+        <!-- Tent Silhouette -->
+        <svg style="position: absolute; bottom: 180px; left: 300px; width: 120px; height: 80px; z-index: 3;" viewBox="0 0 120 80">
+            <polygon points="10,70 60,10 110,70" fill="#654321" opacity="0.8"/>
+            <line x1="60" y1="10" x2="60" y2="70" stroke="#8B4513" stroke-width="2"/>
+        </svg>
+
+        <!-- Stars -->
+        <svg style="position: absolute; top: 20px; left: 100px; width: 200px; height: 100px; z-index: 1;" viewBox="0 0 200 100">
+            <circle cx="20" cy="20" r="2" fill="white" opacity="0.8"/>
+            <circle cx="80" cy="30" r="1.5" fill="white" opacity="0.6"/>
+            <circle cx="150" cy="15" r="2.5" fill="white" opacity="0.9"/>
+            <circle cx="180" cy="50" r="1" fill="white" opacity="0.7"/>
+            <circle cx="50" cy="70" r="1.5" fill="white" opacity="0.8"/>
+        </svg>
+
+        <!-- Campfire SVG -->
+        <div style="position: absolute; bottom: 20px; right: 20px; z-index: 4;">
+            <svg width="80" height="80" viewBox="0 0 100 100">
+                <ellipse cx="50" cy="80" rx="15" ry="4" fill="#8B4513"/>
+                <rect x="47" y="70" width="6" height="12" fill="#654321"/>
+                <polygon points="50,55 45,75 55,75" fill="#FF4500"/>
+                <polygon points="50,50 40,70 60,70" fill="#FF6347"/>
+                <circle cx="50" cy="45" r="2" fill="#FFD700"/>
+            </svg>
+        </div>
+
+        <!-- Moon -->
+        <svg style="position: absolute; top: 30px; right: 50px; width: 60px; height: 60px; z-index: 1;" viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="25" fill="#FFFACD" opacity="0.9"/>
+        </svg>
+    </div>
+
+    <!-- RULES -->
+    <div id="rules" class="section">
+        <div class="header">Camping Rules & Etiquette</div>
+        <div class="card">
+            <p>Follow these essential rules to ensure a safe and enjoyable camping experience for everyone:</p>
+            <ul>
+                <li><strong>Leave No Trace:</strong> Pack out all trash, minimize campfire impacts, and respect wildlife habitats 🌿</li>
+                <li><strong>Campfire Safety:</strong> Only build fires in designated areas, keep them small, and extinguish completely with water 🔥</li>
+                <li><strong>Food Storage:</strong> Store food, toiletries, and garbage in bear-proof containers or hung high to avoid attracting wildlife 🐻</li>
+                <li><strong>Quiet Hours:</strong> Respect other campers by keeping noise down after 10 PM and before 8 AM 🔇</li>
+                <li><strong>Water Conservation:</strong> Use biodegradable soap away from water sources and camp at least 200 feet from lakes/streams 💧</li>
+                <li><strong>Site Selection:</strong> Camp only in designated spots, avoid fragile vegetation, and set up tents on durable surfaces ⛺</li>
+                <li><strong>Personal Safety:</strong> Carry a first aid kit, check weather forecasts, and inform someone of your plans 🩹</li>
+                <li><strong>Respect Others:</strong> Yield to other hikers, keep dogs leashed, and be courteous in shared facilities 🤝</li>
+            </ul>
+            <p><em>Remember: A good camper is prepared, respectful, and leaves the campsite better than they found it!</em></p>
+        </div>
+    </div>
+
+    <!-- JOURNALS -->
+    <div id="journals" class="section">
+        <div class="header">Camping Journal</div>
+
+        <div class="card">
+            <input type="file" id="journalPhoto" accept="image/*" style="margin-bottom: 10px;">
+            <textarea id="journalText" placeholder="Write your reflection..."></textarea>
+            <button onclick="addJournal()">Add Entry</button>
+        </div>
+
+        <div id="journalList"></div>
+    </div>
+
+    <!-- Q&A -->
+    <div id="qa" class="section">
+        <div class="header">Camping Quiz</div>
+
+        <div class="card">
+            <p id="quizInfo">Test your camping knowledge! Answer the admin-created questions below and see your score.</p>
+            <form id="quizForm">
+                <div id="questionsContainer"></div>
+                <button type="button" id="submitQuizBtn" onclick="submitQuiz()" style="display: none;">Submit Quiz</button>
+                <p id="noQuestionsMsg" style="text-align: center; color: #666; padding: 20px;">⏳ No questions available yet. Admin is creating questions for you!</p>
+            </form>
+        </div>
+
+        <div id="quizResult"></div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div id="achievements" class="section">
+        <div class="header">Achievements</div>
+
+        <div class="card">
+            <input type="file" id="achievementPhoto" accept="image/*" style="margin-bottom: 10px;">
+            <textarea id="achievementText" placeholder="Describe your achievement and reflection..."></textarea>
+            <button onclick="addAchievement()">Add Achievement</button>
+        </div>
+
+        <div id="achievementList"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="profile" class="section">
+        <div class="header">User Profile</div>
+
+        <div class="card profile">
+            <div class="avatar"></div>
+            <div>
+                <h3>John Camper</h3>
+                <p>🏆 Explorer Level 3</p>
+                <p>� No email set</p>
+                <p>📝 No bio set</p>
+                <p>�📊 <span id="profileScore">Quiz Score: Not taken yet</span></p>
+                <p>📝 Journals: <span id="journalCount">0</span> | 🏅 Achievements: <span id="achievementCount">0</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Edit Your Profile</h4>
+            <input type="text" id="userName" placeholder="Full Name" style="margin-bottom: 10px; width: 100%;"><br>
+            <input type="email" id="userEmail" placeholder="Email" style="margin-bottom: 10px; width: 100%;"><br>
+            <input type="file" id="userAvatar" accept="image/*" style="margin-bottom: 10px;"><br>
+            <textarea id="userBio" placeholder="Bio/About Me" style="margin-bottom: 10px; width: 100%;"></textarea><br>
+            <button onclick="saveUserInfo()">Save Profile</button>
+        </div>
+
+        <div class="card">
+            <h4>Recent Journal Entries</h4>
+            <div id="profileJournals"></div>
+        </div>
+
+        <div class="card">
+            <h4>Recent Achievements</h4>
+            <div id="profileAchievements"></div>
+        </div>
+    </div>
+
+    <!-- GEAR -->
+    <div id="gear" class="section">
+        <div class="header">Camping Gear Checklist</div>
+
+        <div class="card">
+            <p>Check off the gear you've packed for your camping trip:</p>
+            <div class="gear-grid">
+                <label class="gear-item">
+                    <input type="checkbox" id="tent" onchange="saveChecklist()">
+                    <span>🏕 Tent</span>
+                </label>
+                <label class="gear-item">
+                    <input type="checkbox" id="sleepingBag" onchange="saveChecklist()">
+                    <span>🛏 Sleeping Bag</span>
+                </label>
+                <label class="gear-item">
+                    <input type="checkbox" id="flashlight" onchange="saveChecklist()">
+                    <span>🔦 Flashlight</span>
+                </label>
+                <label class="gear-item">
+                    <input type="checkbox" id="cooking" onchange="saveChecklist()">
+                    <span>🍳 Cooking Equipment</span>
+                </label>
+                <label class="gear-item">
+                    <input type="checkbox" id="map" onchange="saveChecklist()">
+                    <span>🗺 Map & Compass</span>
+                </label>
+                <label class="gear-item">
+                    <input type="checkbox" id="firstAid" onchange="saveChecklist()">
+                    <span>💊 First Aid Kit</span>
+                </label>
+            </div>
+            <button onclick="resetChecklist()" style="margin-top: 20px;">Reset Checklist</button>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboard" class="section">
+        <div class="header">📊 Admin Dashboard</div>
+        
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalJournals">0</div>
+                <div class="stat-label">Total Journals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalAchievements">0</div>
+                <div class="stat-label">Total Achievements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgQuizScore">0%</div>
+                <div class="stat-label">Avg Quiz Score</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>🔓 Recently Logged In Users</h4>
+            <div id="recentlyLoggedInUsers"></div>
+        </div>
+
+        <div class="card">
+            <h4>Recent User Activities</h4>
+            <div id="adminActivityLog"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN Q&A MANAGEMENT -->
+    <div id="adminQA" class="section">
+        <div class="header">❓ Manage Quiz Questions</div>
+
+        <div class="card">
+            <h4>Add New Question</h4>
+            <input type="text" id="qaQuestion" placeholder="Question text" style="margin-bottom: 10px;">
+            <select id="qaType" style="margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                <option value="multiple">Multiple Choice</option>
+                <option value="text">Text Answer</option>
+                <option value="essay">Essay</option>
+            </select>
+            <textarea id="qaOptions" placeholder="For multiple choice: Enter options separated by | (A|B|C|D) and correct answer as [answer]" style="margin-bottom: 10px;"></textarea>
+            <input type="text" id="qaCorrectAnswer" placeholder="Correct answer (for text/essay)" style="margin-bottom: 10px;">
+            <button onclick="addQAQuestion()">Add Question</button>
+        </div>
+
+        <div class="card">
+            <h4>Existing Questions</h4>
+            <div id="qaList"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN USERS -->
+    <div id="adminUsers" class="section">
+        <div class="header">👥 All Users</div>
+        
+        <div class="card">
+            <div id="usersList"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN SUBMISSIONS -->
+    <div id="adminSubmissions" class="section">
+        <div class="header">📊 User Submissions</div>
+        
+        <div class="card">
+            <h4>Journals</h4>
+            <div id="adminJournalsList"></div>
+        </div>
+
+        <div class="card">
+            <h4>Achievements</h4>
+            <div id="adminAchievementsList"></div>
+        </div>
+
+        <div class="card">
+            <h4>Quiz Results</h4>
+            <div id="adminQuizList"></div>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</div> <!-- End mainApp -->
+
+</body>
+</html>
