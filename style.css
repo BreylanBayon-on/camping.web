@@ -27,21 +27,30 @@ body {
     
     .sidebar {
         width: 100%;
-        height: auto;
-        position: relative;
-        left: auto;
-        top: auto;
+        max-width: 320px;
+        height: 100vh;
+        position: fixed;
+        left: -100%;
+        top: 0;
         transform: none !important;
         opacity: 1 !important;
-        display: block !important;
-        padding: 15px;
+        display: flex !important;
+        flex-direction: column;
+        padding: 20px;
         border-right: none;
-        border-bottom: 2px solid rgba(255,255,255,0.15);
-        order: -1; /* Move sidebar to top on mobile */
+        border-bottom: none;
+        order: 0;
+        background: rgba(31, 42, 56, 0.98);
+        transition: left 0.35s ease, opacity 0.35s ease;
+        z-index: 1000;
+    }
+    
+    .sidebar.visible {
+        left: 0;
     }
     
     #menuToggle {
-        display: none !important; /* Hide menu toggle on mobile since sidebar is always visible */
+        display: block !important;
     }
     
     .main {

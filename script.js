@@ -1048,12 +1048,14 @@ function showSection(id, navElement) {
         navElement.classList.add("active");
     }
 
-    // Hide sidebar on desktop after navigation, but keep visible on mobile
+    // Hide sidebar after navigation
     const sidebar = document.querySelector('.sidebar');
     const main = document.querySelector('.main');
-    if (sidebar && sidebar.classList.contains('visible') && window.innerWidth > 768) {
+    if (sidebar && sidebar.classList.contains('visible')) {
         sidebar.classList.remove('visible');
-        if (main) main.classList.remove('with-sidebar');
+    }
+    if (main) {
+        main.classList.remove('with-sidebar');
     }
     
     // Render quiz when quiz section is shown
@@ -1096,12 +1098,11 @@ function showSection(id, navElement) {
 }
 
 function toggleMenu() {
-    // On mobile, sidebar is always visible, so only toggle on desktop
+    const sidebar = document.querySelector('.sidebar');
+    const main = document.querySelector('.main');
+    if (!sidebar || !main) return;
+    sidebar.classList.toggle('visible');
     if (window.innerWidth > 768) {
-        const sidebar = document.querySelector('.sidebar');
-        const main = document.querySelector('.main');
-        if (!sidebar || !main) return;
-        sidebar.classList.toggle('visible');
         main.classList.toggle('with-sidebar');
     }
 }
