@@ -6,6 +6,8 @@ let currentUser = null;
 let currentRole = null;
 let allUsers = {}; // Store all users data
 let qaQuestions = []; // Store custom Q&A questions
+let campAdventures = []; // Store camp adventure types and descriptions
+let currentAdventureIndex = 0; // For adventure carousel
 
 // User database (in localStorage for persistence)
 const DEMO_USERS = {
@@ -164,7 +166,11 @@ function logout() {
 function showMainApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'flex';
-    document.getElementById('menuToggle').style.display = 'block';
+    if (window.innerWidth > 768) {
+        document.getElementById('menuToggle').style.display = 'block';
+    } else {
+        document.getElementById('menuToggle').style.display = 'none';
+    }
     
     // Update user display
     const userDisplay = document.getElementById('userDisplay');
@@ -182,6 +188,7 @@ function showMainApp() {
     
     // Load data
     loadAppSession();
+    updateHomeAdventures(); // Display camp adventures on home page
 }
 
 function loadAppSession() {
@@ -191,6 +198,7 @@ function loadAppSession() {
         loadAllUsersData();
         refreshAdminViews();
     }
+    updateHomeAdventures(); // Always update home adventures display
 }
 
 // ============================================
@@ -212,7 +220,6 @@ function loadUserData() {
     updateProfileAchievements();
     updateProfileStats();
     updateProfileScore();
-    loadChecklist(userData.checklist || {});
     updateProfileDisplay();
 }
 
@@ -232,6 +239,7 @@ function saveAppData() {
 function saveAllUsersData() {
     localStorage.setItem('campingAllUsers', JSON.stringify(allUsers));
     localStorage.setItem('campingQAQuestions', JSON.stringify(qaQuestions));
+    localStorage.setItem('campingAdventures', JSON.stringify(campAdventures));
 }
 
 function loadAllUsersData() {
@@ -244,6 +252,11 @@ function loadAllUsersData() {
     if (savedQA) {
         qaQuestions = JSON.parse(savedQA);
     }
+    
+    const savedAdventures = localStorage.getItem('campingAdventures');
+    if (savedAdventures) {
+        campAdventures = JSON.parse(savedAdventures);
+    }
 }
 
 // ============================================
@@ -255,6 +268,7 @@ function loadAdminDashboard() {
     updateActivityLog();
     loadRecentlyLoggedInUsers();
     loadQAList();
+    loadCampAdventuresList();
     
     // Set up auto-refresh for dashboard every 3 seconds
     if (window.dashboardRefreshInterval) {
@@ -446,6 +460,7 @@ function refreshAdminViews() {
     loadAdminUsers();
     loadAdminSubmissions();
     loadQAList();
+    loadCampAdventuresList();
 }
 
 // ============================================
@@ -708,6 +723,301 @@ function loadAdminSubmissions() {
 }
 
 // ============================================
+// ADMIN CAMP ADVENTURES MANAGEMENT
+// ============================================
+
+function addCampAdventure() {
+    try {
+        const type = document.getElementById('adventureType').value.trim();
+        const description = document.getElementById('adventureDescription').value.trim();
+        const photoInput = document.getElementById('adventurePhoto');
+        const photo = photoInput ? photoInput.files[0] : null;
+
+        if (!type || !description) {
+            alert('Please enter both adventure type and description');
+            return;
+        }
+
+        // Handle photo upload
+        if (photo) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const adventure = {
+                        id: Date.now(),
+                        type: type,
+                        description: description,
+                        photo: e.target.result, // base64 encoded image
+                        createdBy: currentUser,
+                        createdDate: new Date().toLocaleString()
+                    };
+
+                    campAdventures.push(adventure);
+                    saveAllUsersData();
+                    loadCampAdventuresList();
+                    updateHomeAdventures();
+                    
+                    // Clear form
+                    document.getElementById('adventureType').value = '';
+                    document.getElementById('adventureDescription').value = '';
+                    if (photoInput) photoInput.value = '';
+                    alert('Camp adventure added successfully!');
+                } catch (error) {
+                    console.error('Error in photo upload callback:', error);
+                }
+            };
+            reader.onerror = function() {
+                console.error('Error reading photo file');
+                alert('Error reading photo file');
+            };
+            reader.readAsDataURL(photo);
+        } else {
+            const adventure = {
+                id: Date.now(),
+                type: type,
+                description: description,
+                photo: null,
+                createdBy: currentUser,
+                createdDate: new Date().toLocaleString()
+            };
+
+            campAdventures.push(adventure);
+            saveAllUsersData();
+            loadCampAdventuresList();
+            updateHomeAdventures();
+            
+            // Clear form
+            document.getElementById('adventureType').value = '';
+            document.getElementById('adventureDescription').value = '';
+            if (photoInput) photoInput.value = '';
+            alert('Camp adventure added successfully!');
+        }
+    } catch (error) {
+        console.error('Error adding camp adventure:', error);
+        alert('Error adding camp adventure: ' + error.message);
+    }
+}
+
+function editCampAdventure(id) {
+    const adventure = campAdventures.find(a => a.id === id);
+    if (!adventure) return;
+
+    const newType = prompt('Edit adventure type:', adventure.type);
+    if (newType === null) return;
+    
+    const newDescription = prompt('Edit adventure description:', adventure.description);
+    if (newDescription === null) return;
+
+    // Ask if user wants to change photo
+    const changePhoto = confirm('Do you want to upload a new photo? (Current photo will be kept if you cancel)');
+    if (changePhoto) {
+        const photoInput = document.createElement('input');
+        photoInput.type = 'file';
+        photoInput.accept = 'image/*';
+        photoInput.onchange = function() {
+            const file = photoInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    adventure.photo = e.target.result;
+                    adventure.type = newType;
+                    adventure.description = newDescription;
+                    saveAllUsersData();
+                    loadCampAdventuresList();
+                    updateHomeAdventures();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                adventure.type = newType;
+                adventure.description = newDescription;
+                saveAllUsersData();
+                loadCampAdventuresList();
+                updateHomeAdventures();
+            }
+        };
+        photoInput.click();
+    } else {
+        adventure.type = newType;
+        adventure.description = newDescription;
+        saveAllUsersData();
+        loadCampAdventuresList();
+        updateHomeAdventures();
+    }
+}
+
+function deleteCampAdventure(id) {
+    if (confirm('Delete this camp adventure?')) {
+        campAdventures = campAdventures.filter(a => a.id !== id);
+        saveAllUsersData();
+        loadCampAdventuresList();
+        updateHomeAdventures();
+    }
+}
+
+function loadCampAdventuresList() {
+    const list = document.getElementById('adventuresList');
+    if (!list) return;
+    
+    loadAllUsersData();
+    
+    list.innerHTML = '';
+    if (campAdventures.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">🏕 No camp adventures created yet</p>';
+        return;
+    }
+    
+    campAdventures.forEach((adventure, index) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        
+        const userObj = Object.values(allUsers).find(u => u.username === adventure.createdBy);
+        const userRole = userObj?.role || 'unknown';
+        
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div>
+                    <p style="margin: 0; font-size: 14px; color: #999;"><strong>Adventure ${index + 1}</strong></p>
+                    <p style="margin: 8px 0 0 0;"><strong style="font-size: 16px; color: #2e7d32;">🏕 ${adventure.type}</strong></p>
+                </div>
+            </div>
+            ${adventure.photo ? `<img src="${adventure.photo}" alt="${adventure.type}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;">` : ''}
+            <p style="margin: 8px 0; padding: 12px; background: #f0f0f0; border-radius: 6px; font-size: 14px; line-height: 1.5;">
+                ${adventure.description}
+            </p>
+            <p style="margin: 8px 0; font-size: 12px; color: #999;">
+                👤 <strong>Created by: ${adventure.createdBy}</strong> <span style="color: #999;">${userRole === 'admin' ? '[Admin]' : '[User]'}</span>
+                <br>📅 ${adventure.createdDate}
+            </p>
+            <button onclick="editCampAdventure(${adventure.id})">Edit</button>
+            <button onclick="deleteCampAdventure(${adventure.id})" class="delete-btn">Delete</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function updateHomeAdventures() {
+    try {
+        const homeSection = document.getElementById('home');
+        if (!homeSection) return;
+        
+        // Find the existing card in home section
+        const existingCard = homeSection.querySelector('.card');
+        if (!existingCard) return;
+        
+        // Create adventures display
+        let adventuresHTML = '';
+        if (campAdventures.length > 0) {
+            adventuresHTML = `
+                <div style="margin-top: 20px;">
+                    <h4 style="color: #2e7d32; margin-bottom: 15px;">🏕 Available Camp Adventures</h4>
+                    <div id="adventureCarousel" style="position: relative; overflow: hidden; border-radius: 8px; background: rgba(46, 125, 50, 0.05); min-height: 300px;">
+                        <div id="adventureSlides" style="display: flex; transition: transform 0.3s ease;">
+            `;
+            
+            campAdventures.forEach((adventure, index) => {
+                const photoHTML = adventure.photo 
+                    ? `<img src="${adventure.photo}" alt="${adventure.type}" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-bottom: 15px; object-fit: cover;">`
+                    : '<div style="width: 100%; height: 200px; background: rgba(46, 125, 50, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;"><span style="font-size: 48px;">🏕</span></div>';
+                
+                adventuresHTML += `
+                    <div class="adventure-slide" style="min-width: 100%; padding: 20px; box-sizing: border-box;">
+                        <div style="text-align: center;">
+                            ${photoHTML}
+                            <h5 style="margin: 0 0 8px 0; color: #2e7d32; font-size: 18px;">🏕 ${adventure.type}</h5>
+                            <p style="margin: 0; color: #555; line-height: 1.4; text-align: left;">${adventure.description}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            adventuresHTML += `
+                        </div>
+                        ${campAdventures.length > 1 ? `
+                        <button id="prevAdventure" onclick="changeAdventure(-1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">‹</button>
+                        <button id="nextAdventure" onclick="changeAdventure(1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px;">›</button>
+                        <div id="adventureIndicators" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px;">
+                            ${campAdventures.map((_, index) => `<div class="indicator" onclick="goToAdventure(${index})" style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer;"></div>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update the card content
+        existingCard.innerHTML = `
+            <p>Your all in one camp Companion!</p>
+            ${adventuresHTML}
+        `;
+        
+        // Initialize carousel
+        if (campAdventures.length > 0) {
+            currentAdventureIndex = 0;
+            updateAdventureDisplay();
+            updateAdventureIndicators();
+        }
+    } catch (error) {
+        console.error('Error updating home adventures:', error);
+    }
+}
+
+// Carousel navigation functions
+function changeAdventure(direction) {
+    try {
+        if (campAdventures.length === 0) return;
+        
+        currentAdventureIndex += direction;
+        if (currentAdventureIndex < 0) currentAdventureIndex = campAdventures.length - 1;
+        if (currentAdventureIndex >= campAdventures.length) currentAdventureIndex = 0;
+        
+        updateAdventureDisplay();
+        updateAdventureIndicators();
+    } catch (error) {
+        console.error('Error changing adventure:', error);
+    }
+}
+
+function goToAdventure(index) {
+    try {
+        if (index < 0 || index >= campAdventures.length) return;
+        
+        currentAdventureIndex = index;
+        updateAdventureDisplay();
+        updateAdventureIndicators();
+    } catch (error) {
+        console.error('Error going to adventure:', error);
+    }
+}
+
+function updateAdventureDisplay() {
+    try {
+        const slides = document.getElementById('adventureSlides');
+        if (slides && campAdventures.length > 0) {
+            slides.style.transform = `translateX(-${currentAdventureIndex * 100}%)`;
+        }
+    } catch (error) {
+        console.error('Error updating adventure display:', error);
+    }
+}
+
+function updateAdventureIndicators() {
+    try {
+        const indicators = document.querySelectorAll('#adventureIndicators .indicator');
+        if (indicators.length === 0) return; // Indicators not yet created
+        
+        indicators.forEach((indicator, index) => {
+            if (index === currentAdventureIndex) {
+                indicator.style.background = 'rgba(255,255,255,0.9)';
+            } else {
+                indicator.style.background = 'rgba(255,255,255,0.5)';
+            }
+        });
+    } catch (error) {
+        console.error('Error updating adventure indicators:', error);
+    }
+}
+
+// ============================================
 // ORIGINAL USER FUNCTIONS (MODIFIED FOR MULTI-USER)
 // ============================================
 
@@ -738,9 +1048,12 @@ function showSection(id, navElement) {
         navElement.classList.add("active");
     }
 
+    // Hide sidebar on desktop after navigation, but keep visible on mobile
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar && sidebar.classList.contains('visible')) {
+    const main = document.querySelector('.main');
+    if (sidebar && sidebar.classList.contains('visible') && window.innerWidth > 768) {
         sidebar.classList.remove('visible');
+        if (main) main.classList.remove('with-sidebar');
     }
     
     // Render quiz when quiz section is shown
@@ -751,6 +1064,11 @@ function showSection(id, navElement) {
     // Load followed users when profile is shown
     if (id === 'profile') {
         loadUserInfoIntoForm();
+    }
+    
+    // Initialize adventure carousel when home is shown
+    if (id === 'home') {
+        updateAdventureIndicators();
     }
     
     // Auto-refresh admin submissions
@@ -778,9 +1096,14 @@ function showSection(id, navElement) {
 }
 
 function toggleMenu() {
-    const sidebar = document.querySelector('.sidebar');
-    if (!sidebar) return;
-    sidebar.classList.toggle('visible');
+    // On mobile, sidebar is always visible, so only toggle on desktop
+    if (window.innerWidth > 768) {
+        const sidebar = document.querySelector('.sidebar');
+        const main = document.querySelector('.main');
+        if (!sidebar || !main) return;
+        sidebar.classList.toggle('visible');
+        main.classList.toggle('with-sidebar');
+    }
 }
 
 // ============================================
@@ -1204,30 +1527,6 @@ window.onload = function() {
         document.getElementById('loginScreen').style.display = 'block';
     }
 };
-
-function resetChecklist() {
-    const checkboxes = document.querySelectorAll('#gear input[type="checkbox"]');
-    checkboxes.forEach(cb => cb.checked = false);
-    saveAppData();
-}
-
-function loadChecklist(checklist) {
-    Object.keys(checklist).forEach(id => {
-        const checkbox = document.getElementById(id);
-        if (checkbox) checkbox.checked = checklist[id];
-    });
-}
-
-function saveChecklist() {
-    const checklist = {};
-    const checkboxes = document.querySelectorAll('#gear input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        checklist[cb.id] = cb.checked;
-    });
-    if (!allUsers[currentUser]) allUsers[currentUser] = {};
-    allUsers[currentUser].checklist = checklist;
-    saveAppData();
-}
 
 // ============================================
 // FOLLOW USERS FUNCTIONS

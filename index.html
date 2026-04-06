@@ -85,7 +85,6 @@
         <div class="nav-item" onclick="showSection('qa', this)">❓ Quiz</div>
         <div class="nav-item" onclick="showSection('achievements', this)">🏆 Achievements</div>
         <div class="nav-item" onclick="showSection('profile', this)">👤 Profile</div>
-        <div class="nav-item" onclick="showSection('gear', this)">🎒 Gear</div>
     </div>
 
     <!-- ADMIN MENU -->
@@ -99,6 +98,7 @@
             </svg>
             Dashboard
         </div>
+        <div class="nav-item" onclick="showSection('adminAdventures', this)">🏕 Manage Adventures</div>
         <div class="nav-item" onclick="showSection('adminQA', this)">❓ Manage Q&A</div>
         <div class="nav-item" onclick="showSection('adminUsers', this)">👥 All Users</div>
         <div class="nav-item" onclick="showSection('adminSubmissions', this)">📊 User Submissions</div>
@@ -261,43 +261,7 @@
             <h4>Recent Achievements</h4>
             <div id="profileAchievements"></div>
         </div>
-    </div>
-
-    <!-- GEAR -->
-    <div id="gear" class="section">
-        <div class="header">Camping Gear Checklist</div>
-
-        <div class="card">
-            <p>Check off the gear you've packed for your camping trip:</p>
-            <div class="gear-grid">
-                <label class="gear-item">
-                    <input type="checkbox" id="tent" onchange="saveChecklist()">
-                    <span>🏕 Tent</span>
-                </label>
-                <label class="gear-item">
-                    <input type="checkbox" id="sleepingBag" onchange="saveChecklist()">
-                    <span>🛏 Sleeping Bag</span>
-                </label>
-                <label class="gear-item">
-                    <input type="checkbox" id="flashlight" onchange="saveChecklist()">
-                    <span>🔦 Flashlight</span>
-                </label>
-                <label class="gear-item">
-                    <input type="checkbox" id="cooking" onchange="saveChecklist()">
-                    <span>🍳 Cooking Equipment</span>
-                </label>
-                <label class="gear-item">
-                    <input type="checkbox" id="map" onchange="saveChecklist()">
-                    <span>🗺 Map & Compass</span>
-                </label>
-                <label class="gear-item">
-                    <input type="checkbox" id="firstAid" onchange="saveChecklist()">
-                    <span>💊 First Aid Kit</span>
-                </label>
-            </div>
-            <button onclick="resetChecklist()" style="margin-top: 20px;">Reset Checklist</button>
         </div>
-    </div>
 
     <!-- ADMIN DASHBOARD -->
     <div id="adminDashboard" class="section">
@@ -330,6 +294,24 @@
         <div class="card">
             <h4>Recent User Activities</h4>
             <div id="adminActivityLog"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN CAMP ADVENTURES MANAGEMENT -->
+    <div id="adminAdventures" class="section">
+        <div class="header">🏕 Manage Camp Adventures</div>
+
+        <div class="card">
+            <h4>Add New Camp Adventure</h4>
+            <input type="text" id="adventureType" placeholder="Adventure Type (e.g., Mountain Hiking, Lake Camping)" style="margin-bottom: 10px; width: 100%;">
+            <textarea id="adventureDescription" placeholder="Adventure Description" style="margin-bottom: 10px; width: 100%; min-height: 80px;"></textarea>
+            <input type="file" id="adventurePhoto" accept="image/*" style="margin-bottom: 10px;">
+            <button onclick="addCampAdventure()">Add Adventure</button>
+        </div>
+
+        <div class="card">
+            <h4>Existing Camp Adventures</h4>
+            <div id="adventuresList"></div>
         </div>
     </div>
 
