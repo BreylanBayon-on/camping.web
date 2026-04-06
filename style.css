@@ -42,7 +42,7 @@ body {
         order: 0;
         background: rgba(31, 42, 56, 0.98);
         transition: left 0.35s ease, opacity 0.35s ease;
-        z-index: 1000;
+        z-index: 1100;
     }
     
     .sidebar.visible {
@@ -258,7 +258,7 @@ body {
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 1000;
+    z-index: 1101;
     padding: 10px 15px;
     border: none;
     border-radius: 8px;
