@@ -51,6 +51,9 @@ body {
     
     #menuToggle {
         display: block !important;
+        padding: 4px 8px;
+        font-size: 10px;
+        border-radius: 3px;
     }
     
     .main {
