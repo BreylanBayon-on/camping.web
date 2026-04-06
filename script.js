@@ -166,11 +166,7 @@ function logout() {
 function showMainApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'flex';
-    if (window.innerWidth > 768) {
-        document.getElementById('menuToggle').style.display = 'block';
-    } else {
-        document.getElementById('menuToggle').style.display = 'none';
-    }
+    document.getElementById('menuToggle').style.display = 'block';
     
     // Update user display
     const userDisplay = document.getElementById('userDisplay');
